@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booking Snapora Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      padding: 30px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .submit-btn {
+      background-color: #121212;
+      color: white;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 100%;
+      margin-top: 20px;
+      font-weight: 600;
+    }
+
+  .calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: black;
+  color: white;
+  padding: 16px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+}
+
+    .nav-arrow {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      padding: 16px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-top: none;
+    }
+
+    .date {
+      padding: 10px;
+      text-align: center;
+      border-radius: 50%;
+      background-color: #f0f2f5;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .date.selected {
+      background-color: #121212;
+      color: white;
+    }
+
+    .selected-date {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    .time-slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .time-slot {
+      padding: 12px 16px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .time-slot.selected {
+      background-color: #121212;
+      color: white;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 14px;
+      display: none;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <form id="booking-form" action="proses-booking.php" method="POST">
+    <h1>Booking Snapora Studio</h1>
+
+    <h2>Lokasi Studio</h2>
+    <div class="form-group">
+      <label for="lokasi">Pilih Lokasi</label>
+      <select id="lokasi" name="lokasi" required>
+        <option value="">-- Pilih Lokasi --</option>
+        <option value="Bandung Indah Plaza">Bandung Indah Plaza</option>
+        <option value="Summarecon Mall Bandung">Summarecon Mall Bandung</option>
+        <option value="Paris Van Java">Paris Van Java</option>
+      </select>
+    </div>
+
+    <h2>Paket Foto</h2>
+    <div class="form-group">
+      <label for="kategori">Kategori Paket</label>
+      <select id="kategori" name="kategori" required>
+        <option value="">-- Pilih Paket --</option>
+        <option value="Photo Group">Photo Group (Rp25.000/orang)</option>
+        <option value="Photo Couple">Photo Couple (maks 2 orang)</option>
+        <option value="Family Photo">Family Photo (maks 50 orang)</option>
+        <option value="Pas Photo">Pas Photo (1 orang)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+  <label for="nama">Nama Lengkap</label>
+  <input type="text" id="nama" name="nama" placeholder="Nama" required>
+</div>
+
+    <h2>Kontak</h2>
+<div class="form-group">
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email" placeholder="contoh: nama@email.com" required>
+</div>
+
+    <h2>Tanggal Booking</h2>
+    <div class="calendar-header">
+  <button type="button" id="prevMonth" class="nav-arrow"><i class="fas fa-chevron-left"></i></button>
+  <div id="monthDisplay">Juli</div>
+  <button type="button" id="nextMonth" class="nav-arrow"><i class="fas fa-chevron-right"></i></button>
+</div>
+    <div class="dates" id="dateContainer"></div>
+    <input type="hidden" name="tanggal" id="inputTanggal">
+
+    <div class="selected-date" id="selectedDateText">Pilih tanggal</div>
+    <h2>Pilih Jam</h2>
+    <div class="time-slots" id="timeSlots"></div>
+
+    <div class="selected-date" id="selectedTimeText">Pilih jam</div>
+
+    <input type="hidden" name="jam" id="jam">
+    <div class="error-message" id="jamError">Silakan pilih jam terlebih dahulu.</div>
+
+    <div class="form-group">
+      <label for="jumlah-orang">Jumlah Orang</label>
+      <input type="number" id="jumlah-orang" name="jumlah_orang" min="1" required>
+      <div id="max-people-warning" class="error-message"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Total Harga</label>
+      <div id="total-harga" style="font-weight: bold; font-size: 18px;">Rp 0</div>
+    </div>
+
+</div>
+
+    <button type="submit" class="submit-btn">Lanjutkan Booking</button>
+    <p>Butuh bantuan? Hubungi kami di <a href="https://wa.me/089524536746">WhatsApp</a></p>
+  </form>
+
+  <script>
+    const monthNames = ['Juli', 'Agustus', 'September'];
+    let currentMonth = 0;
+    let currentYear = 2025;
+
+    const monthDisplay = document.getElementById("monthDisplay");
+    const dateContainer = document.getElementById("dateContainer");
+    const inputTanggal = document.getElementById("inputTanggal");
+    const selectedDateText = document.getElementById("selectedDateText");
+
+
+    let bookedSlots = {};
+
+    fetch('get-booked-slots.php')
+      .then(res => res.json())
+      .then(data => {
+        bookedSlots = data;
+        generateCalendar(currentMonth); // regenerate calendar after fetching
+      });
+
+    function isToday(dateObj) {
+      const now = new Date();
+      return dateObj.getDate() === now.getDate() &&
+            dateObj.getMonth() === now.getMonth() &&
+            dateObj.getFullYear() === now.getFullYear();
+    }
+
+
+    function generateCalendar(monthIndex) {
+    dateContainer.innerHTML = "";
+    monthDisplay.textContent = monthNames[monthIndex];
+
+    const today = new Date();
+    const calendarMonth = new Date(currentYear, monthIndex + 6);
+    const daysInMonth = new Date(currentYear, monthIndex + 7, 0).getDate();
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const thisDate = new Date(currentYear, monthIndex + 6, d);
+      const div = document.createElement("div");
+      div.className = "date";
+      div.textContent = d;
+
+      const dateStr = `${currentYear}-${String(monthIndex + 7).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+      if (thisDate < today.setHours(0,0,0,0) || (bookedSlots[dateStr] && bookedSlots[dateStr].length >= jamList.length)) {
+        div.style.opacity = 0.3;
+        div.style.pointerEvents = "none";
+        div.style.cursor = "default";
+      } else {
+        div.addEventListener("click", () => {
+          document.querySelectorAll(".date").forEach(el => el.classList.remove("selected"));
+          div.classList.add("selected");
+          inputTanggal.value = dateStr;
+          selectedDateText.textContent = `Kamu memilih: ${dateStr}`;
+          generateJam(dateStr);
+        });
+      }
+
+      dateContainer.appendChild(div);
+    }
+  }
+
+    function generateJam(dateStr) {
+    timeSlots.innerHTML = "";
+    const now = new Date();
+    const selectedDate = new Date(dateStr);
+    const jamTerbooking = bookedSlots[dateStr] || [];
+
+    jamList.forEach(jam => {
+      const jamDate = new Date(dateStr + ' ' + jam);
+
+      const btn = document.createElement("div");
+      btn.className = "time-slot";
+      btn.textContent = jam;
+
+      if (
+        jamTerbooking.includes(jam) || // sudah dipesan
+        (isToday(selectedDate) && jamDate < now) // sudah lewat (hari ini)
+      ) {
+        btn.style.opacity = 0.3;
+        btn.style.pointerEvents = "none";
+        btn.style.cursor = "default";
+      } else {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".time-slot").forEach(slot => slot.classList.remove("selected"));
+          btn.classList.add("selected");
+          inputJam.value = jam;
+          jamError.style.display = "none";
+          selectedTimeText.textContent = `Kamu memilih jam: ${jam}`;
+        });
+      }
+
+      timeSlots.appendChild(btn);
+    });
+  }
+    generateCalendar(currentMonth);
+
+    // Generate jam
+   const jamList = [
+  "07:00", "07:30", "08:00", "08:30", "09:00", "09:30",
+  "10:00", "10:30", "11:00", "11:30",
+  "13:00", "13:30", "14:00", "14:30", "15:00"
+];
+
+const timeSlots = document.getElementById("timeSlots");
+const inputJam = document.getElementById("jam");
+const jamError = document.getElementById("jamError");
+const selectedTimeText = document.getElementById("selectedTimeText");
+
+jamList.forEach(jam => {
+  const btn = document.createElement("div");
+  btn.className = "time-slot";
+  btn.textContent = jam;
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".time-slot").forEach(slot => slot.classList.remove("selected"));
+    btn.classList.add("selected");
+    inputJam.value = jam;
+    jamError.style.display = "none";
+    selectedTimeText.textContent = `Kamu memilih jam: ${jam}`;
+  });
+  timeSlots.appendChild(btn);
+});
+
+    // Paket harga dinamis
+    const kategoriSelect = document.getElementById('kategori');
+    const jumlahInput = document.getElementById('jumlah-orang');
+    const hargaDisplay = document.getElementById('total-harga');
+    const warningDiv = document.getElementById('max-people-warning');
+
+    const paket = {
+      'Photo Group': { max: null, price: 25000 },
+      'Photo Couple': { max: 2, price: 25000 },
+      'Family Photo': { max: 50, price: 25000 },
+      'Pas Photo': { max: 1, price: 25000 }
+    };
+
+    function hitungHarga() {
+      const kategori = kategoriSelect.value;
+      const jumlah = parseInt(jumlahInput.value) || 0;
+      if (paket[kategori]) {
+        const { max, price } = paket[kategori];
+        if (max && jumlah > max) {
+          warningDiv.textContent = `Maksimal ${max} orang untuk paket ini`;
+          warningDiv.style.display = "block";
+          jumlahInput.setCustomValidity(`Maksimal ${max} orang`);
+        } else {
+          warningDiv.style.display = "none";
+          jumlahInput.setCustomValidity("");
+          hargaDisplay.textContent = `Rp ${jumlah * price}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+      } else {
+        hargaDisplay.textContent = "Rp 0";
+      }
+    }
+
+    kategoriSelect.addEventListener("change", hitungHarga);
+    jumlahInput.addEventListener("input", hitungHarga);
+
+    // Validasi submit
+    document.getElementById('booking-form').addEventListener("submit", function(e) {
+      if (!inputJam.value) {
+        e.preventDefault();
+        jamError.style.display = "block";
+        window.scrollTo({ top: timeSlots.offsetTop - 100, behavior: 'smooth' });
+      }
+    });
+
+    
+  </script>
+</body>
+</html>
